@@ -1,0 +1,624 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Example API
+  termsOfService: https://example.com/terms/
+  contact:
+    name: Contact our support
+    email: contact@example.com
+    url: http://example.com/contact
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  x-logo:
+    url: https://redocly.github.io/openapi-template/logo.png
+    altText: OpenAPI example logo
+  description: |
+    This is an **example** API to demonstrate features of the OpenAPI specification.
+    # Introduction
+servers:
+  - url: https://{tenant}/api/v1
+    variables:
+      tenant:
+        default: www
+        description: Your tenant id
+  - url: https://example.com/api/v1
+security:
+  - basic_auth: []
+tags:
+  - name: Customer
+    description: Customer operations.
+  - name: Product
+    description: Product operations.
+  - name: Order
+    description: Order operations.
+externalDocs:
+  description: Find out how to create a GitHub repo for your OpenAPI definition.
+  url: https://github.com/Redocly/create-openapi-repo
+paths:
+  /v1/customers:
+    get:
+      tags:
+        - Customers
+      summary: Get list  all customers
+      description: Retrieve a list of all customers.
+      operationId: listCustomers
+      responses:
+        '200':
+          description: A list of customers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customer_list'
+        '404':
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    post:
+      tags:
+        - Customers
+      summary: Create a new customer
+      description: Create a new customer with the provided details.
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/customer'
+      responses:
+        '201':
+          description: Customer created successfully.
+          headers:
+            Location:
+              description: URL of the newly created customer.
+              schema:
+                type: string
+                format: uri
+                example: /v1/customers/12cab3d-4f5e-6a7b-8c9d-0e1f2g3h4i5j
+        '400':
+          description: Bad request due to invalid input.
+        '500':
+          description: Internal server error.
+  /v1/customers/{customerId}:
+    get:
+      tags:
+        - Customer
+      summary: Get customer by ID
+      description: Retrieve a customer by their unique identifier.
+      operationId: getCustomerById
+      parameters:
+        - $ref: '#/components/parameters/customer_id'
+      responses:
+        '200':
+          description: Customer retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customer'
+                description: Customer object containing the customer's details.
+        '400':
+          description: Bad request due to invalid input.
+        '404':
+          description: Customer not found.
+        '500':
+          description: Internal server error.
+  /v1/products:
+    get:
+      tags:
+        - Products
+      summary: Get list of all products
+      description: Retrieve a list of all products.
+      operationId: listProducts
+      responses:
+        '200':
+          description: A list of products.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product_list'
+        '404':
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /v1/products/{productId}:
+    get:
+      tags:
+        - Product
+      summary: Get a product by ID
+      description: |
+        Get a product by ID
+      operationId: getProductById
+      parameters:
+        - $ref: '#/components/parameters/product_id'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+        '400':
+          description: Bad request due to invalid input.
+        '404':
+          description: Customer not found.
+        '500':
+          description: Internal server error.
+  /v1/orders:
+    get:
+      tags:
+        - Order
+      summary: Get list of all orders
+      description: Retrieve a list of all orders.
+      operationId: listOrders
+      responses:
+        '200':
+          description: A list of orders.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order_list'
+        '404':
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /v1/orders/{orderId}:
+    get:
+      tags:
+        - Order
+      summary: Get an order by ID
+      description: |
+        Get an order by ID
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: The ID of the order to retrieve.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order'
+        '400':
+          description: Bad request due to invalid input.
+        '404':
+          description: Order not found.
+        '500':
+          description: Internal server error
+components:
+  securitySchemes:
+    main_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://example.com/api/oauth/dialog
+          scopes:
+            read:users: read users info
+            write:users: modify or remove users
+    api_key:
+      type: apiKey
+      in: header
+      name: api_key
+    basic_auth:
+      type: http
+      scheme: basic
+  schemas:
+    name:
+      type: object
+      properties:
+        prefix:
+          type:
+            - string
+            - 'null'
+          description: name prefix.
+          maxLength: 25
+          minLength: 0
+        firstName:
+          type: string
+          description: Name of the customer.
+          maxLength: 2
+          minLength: 100
+        lastName:
+          type: string
+          description: Last name of the customer.
+          maxLength: 2
+          minLength: 100
+        suffix:
+          type:
+            - string
+            - 'null'
+          description: name suffix.
+          maxLength: 2
+          minLength: 10
+      required:
+        - firstName
+        - lastName
+    address:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the address.
+          readOnly: true
+        addressLine1:
+          type: string
+          description: First line of the address.
+          maxLength: 100
+          minLength: 3
+        addressLine2:
+          type: string
+          description: Second line of the address (optional).
+          maxLength: 100
+          minLength: 3
+        city:
+          type: string
+          description: City of the address.
+          maxLength: 100
+          minLength: 3
+        state:
+          type: string
+          description: state code
+          maxLength: 2
+          minLength: 2
+        zip:
+          type: string
+          description: Postal code of the address.
+          maxLength: 10
+          minLength: 5
+        dateCreated:
+          type: string
+          format: date-time
+          description: Date and time when the address was created.
+          readOnly: true
+        dateUpdated:
+          type: string
+          format: date-time
+          description: Date and time when the address was last updated.
+          readOnly: true
+      required:
+        - addressLine1
+        - city
+        - state
+        - zip
+    payment_method:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the payment method.
+          readOnly: true
+        displayName:
+          type: string
+          description: Display name of the payment method.
+          maxLength: 2
+          minLength: 100
+        cardNumber:
+          type: integer
+          description: Card number of the payment method.
+        expiryMonth:
+          type: integer
+          description: Expiry month of the payment method.
+        expiryYear:
+          type: integer
+          description: Expiry year of the payment method.
+        cvv:
+          type: integer
+          description: CVV code of the payment method.
+        dateCreated:
+          type: string
+          format: date-time
+          description: Date and time when the payment method was created.
+          readOnly: true
+        dateUpdated:
+          type: string
+          format: date-time
+          description: Date and time when the payment method was last updated.
+          readOnly: true
+      required:
+        - displayName
+        - cardNumber
+        - expiryMonth
+        - expiryYear
+        - cvv
+    customer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the customer.
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/name'
+          description: Name of the customer.
+        shipToAddress:
+          $ref: '#/components/schemas/address'
+          description: Shipping address of the customer.
+        billToAddress:
+          $ref: '#/components/schemas/address'
+          description: Billing address of the customer.
+        email:
+          type: string
+          format: email
+          description: Email address of the customer.
+          maxLength: 225
+          minLength: 3
+        phone:
+          type:
+            - string
+            - 'null'
+          description: Phone number of the customer.
+          maxLength: 15
+          minLength: 7
+        paymentMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/payment_method'
+      required:
+        - name
+        - shipToAddress
+        - billToAddress
+    customer_list:
+      type: array
+      items:
+        $ref: '#/components/schemas/customer'
+    Problem:
+      type: object
+      description: The Problem Details JSON Object [[RFC7807](https://tools.ietf.org/html/rfc7807)].
+      properties:
+        type:
+          type: string
+          description: A URI reference [[RFC3986](https://tools.ietf.org/html/rfc3986)] that identifies the problem type. It should provide human-readable documentation for the problem type. When this member is not present, its value is assumed to be "about:blank".
+          format: uri
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+        status:
+          type: integer
+          description: The HTTP status code.
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.
+    uuid_id:
+      type: string
+      format: uuid
+      description: System generated unique identifier for the resource.
+      readOnly: true
+    dimensions:
+      type: object
+      properties:
+        length:
+          type: integer
+          description: The length of the product
+          minimum: 1
+          maximum: 999
+          example: 10
+        width:
+          type: integer
+          description: The width of the product
+          minimum: 1
+          maximum: 999
+          example: 10
+        height:
+          type: integer
+          description: The height of the product
+          minimum: 1
+          maximum: 999
+          example: 10
+      description: The dimentions of the product
+      required:
+        - length
+        - width
+        - height
+    iso_timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 Timestamp. Date Created and Date Updated are system managed values, should not be sent in request payloads - will be ignored.
+      example: '2022-08-22T11:43:06-07:00'
+      title: ISO Timestamp
+      readOnly: true
+    category:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid_id'
+        category:
+          type: string
+          description: The category of the product
+          minLength: 3
+          maxLength: 25
+          example: Electronics
+        description:
+          type: string
+          description: The description of the category
+          minLength: 3
+          maxLength: 255
+          example: Electronics and Gadgets
+        category_code:
+          type: string
+          description: The category code of the product
+          minLength: 3
+          maxLength: 25
+          example: ELECTRONICS
+        dateCreated:
+          $ref: '#/components/schemas/iso_timestamp'
+        dateUpdated:
+          $ref: '#/components/schemas/iso_timestamp'
+      required:
+        - category
+        - description
+        - category_code
+    image:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid_id'
+        url:
+          type: string
+          format: url
+          description: The url of the image
+          minLength: 5
+          maxLength: 500
+          example: https://springframework.guru/wp-content/uploads/2019/08/spring-framework-guru-logo.jpg
+        altText:
+          type: string
+          minLength: 3
+          maxLength: 255
+        dateCreated:
+          $ref: '#/components/schemas/iso_timestamp'
+        dateUpdated:
+          $ref: '#/components/schemas/iso_timestamp'
+      required:
+        - url
+    product:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid_id'
+        description:
+          type:
+            - string
+            - 'null'
+          description: The description of the product
+          minLength: 3
+          maxLength: 255
+        dimensions:
+          $ref: '#/components/schemas/dimensions'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/category'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/image'
+        price:
+          type: string
+          pattern: ^-?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?$
+        cost:
+          type: string
+          pattern: ^-?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?$
+        dateCreated:
+          $ref: '#/components/schemas/iso_timestamp'
+        dateUpdated:
+          $ref: '#/components/schemas/iso_timestamp'
+      required:
+        - description
+        - price
+    product_list:
+      type: array
+      items:
+        $ref: '#/components/schemas/product'
+      description: List of products
+    order_list:
+      type: array
+      items:
+        $ref: '#/components/schemas/product'
+      description: List of products
+    order_product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the product
+          readOnly: true
+        description:
+          type: string
+          description: The description of the product
+        price:
+          type: string
+          pattern: ^-?(?:0|[1-9]\d{0,2}(?:,?\d{3})*)(?:\.\d+)?$
+    order_line:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid_id'
+        product:
+          $ref: '#/components/schemas/order_product'
+        orderQuantity:
+          type: integer
+          description: The quantity of the product in the order
+          minimum: 1
+          maximum: 10000
+          example: 2
+        shipQuantity:
+          type: integer
+          description: The quantity of the product shipped
+          minimum: 1
+          maximum: 10000
+          example: 2
+        dateCreated:
+          $ref: '#/components/schemas/iso_timestamp'
+        dateUpdated:
+          $ref: '#/components/schemas/iso_timestamp'
+      required:
+        - product
+        - orderQuantity
+    order:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid_id'
+        orderStatus:
+          type: string
+          enum:
+            - NEW
+            - HOLD
+            - SHIPPED
+            - DELIVERED
+            - CLOSED
+          default: NEW
+        shipmentInfo:
+          type: string
+          minLength: 1
+          maxLength: 255
+        orderLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/order_line'
+          description: The order lines of the order
+        dateCreated:
+          $ref: '#/components/schemas/iso_timestamp'
+        dateUpdated:
+          $ref: '#/components/schemas/iso_timestamp'
+      required:
+        - customer
+        - orderStatus
+        - orderLines
+  parameters:
+    customer_id:
+      name: customerId
+      in: path
+      description: The ID value of the customer. This value is a UUID.
+      required: true
+      schema:
+        type: string
+        format: uuid
+    product_id:
+      name: productId
+      in: path
+      description: The ID value of the customer. This value is a UUID.
+      required: true
+      schema:
+        type: string
+        format: uuid
