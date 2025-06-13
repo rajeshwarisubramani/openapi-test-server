@@ -3,6 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>raje.springframework</groupId>
         <artifactId>openapi-test-server</artifactId>
@@ -33,6 +34,20 @@
             <artifactId>jsr305</artifactId>
             <version>3.0.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.2.Final</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -62,8 +77,13 @@
                             <generateApis>false</generateApis>
                             <configOptions>
                                 <sourceFolder>src/gen/java/main</sourceFolder>
+                                <useJakartaEE>true</useJakartaEE>
+                                <useBeansValidation>true</useBeansValidation>
                                 <validateSpec>false</validateSpec>
                                 <skipValidateSpec>true</skipValidateSpec>
+                                <modelPackage>raje.springframework.apifirst.model</modelPackage>
+                                <openapiNullable>false</openapiNullable>
+                                <additionalModelTypeAnnotations>@lombok.Builder  @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                             </configOptions>
                         </configuration>
                     </execution>
